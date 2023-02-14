@@ -1,3 +1,4 @@
+*.out
 .session_cookie
 Cargo.lock
 inputs
