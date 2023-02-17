@@ -1,7 +1,7 @@
 #include "1.cpp"
 #include "2.cpp"
-/*
 #include "3.cpp"
+/*
 #include "4.cpp"
 #include "5.cpp"
 #include "6.cpp"
@@ -31,5 +31,7 @@ int main() {
 	cout<<"1b: "<<day1b()<<endl;
 	cout<<"2a: "<<day2a()<<endl;
 	cout<<"2b: "<<day2b()<<endl;
+	cout<<"3a: "<<day3a()<<endl;
+	cout<<"3b: "<<day3b()<<endl;
 	return 0;
 }
