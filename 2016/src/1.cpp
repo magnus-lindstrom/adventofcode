@@ -116,7 +116,7 @@ std::vector<Move> get_moves() {
 	return moves;
 }
 
-void a() {
+int day1a() {
 	Position pos;
 	std::vector<Move> moves = get_moves();
 	// pos.print();
@@ -125,24 +125,18 @@ void a() {
 		pos.make_move(move);
 		// pos.print();
 	}
-	cout<<"1a: "<<pos.dist()<<endl;
+	return pos.dist();
 }
 
-void b() {
+int day1b() {
 	Position pos;
 	std::vector<Move> moves = get_moves();
 	for (Move move : moves) {
 		pos.make_move(move);
 		if (pos.has_revisited_a_position()) {
-			cout<<"1b: "<<pos.revisited_pos_dist()<<endl;
-			return;
+			return pos.revisited_pos_dist();
 		}
 	}
-	cout<<"1b: did not revisit old spot."<<endl;
-}
-
-int main () {
-	a();
-	b();
-	return 0;
+	cout<<"did not revisit old spot."<<endl;
+	return -1;
 }

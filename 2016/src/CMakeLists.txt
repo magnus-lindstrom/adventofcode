@@ -1,0 +1,5 @@
+cmake_minimum_required (VERSION 3.16.0)
+project (aoc2016)
+add_executable(${PROJECT_NAME} main.cpp)
+set(CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
