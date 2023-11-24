@@ -1,5 +1,54 @@
 local utils = {}
 
+function utils.product_of_table_elements(tab)
+  local prod = 1
+  for _, value in pairs(tab) do
+    prod = prod * value
+  end
+  return prod
+end
+
+function utils.smallest_table_element(tab)
+  local smallest = math.huge
+  for _, value in pairs(tab) do
+    if value < smallest then
+      smallest = value
+    end
+  end
+  return smallest
+end
+
+function utils.sum_over_table_elements(tab)
+  local sum = 0
+  for _, value in pairs(tab) do
+    sum = sum + value
+  end
+  return sum
+end
+
+function utils.sum_over_table_indices(tab)
+  local sum = 0
+  for i, _ in pairs(tab) do
+    sum = sum + i
+  end
+  return sum
+end
+
+function utils.module_is_available(name)
+  if package.loaded[name] then
+    return true
+  else
+    for _, searcher in ipairs(package.searchers or package.loaders) do
+      local loader = searcher(name)
+      if type(loader) == 'function' then
+        package.preload[name] = loader
+        return true
+      end
+    end
+    return false
+  end
+end
+
 function utils.table_max(table)
 	local max = -math.huge
 	for _, value in pairs(table) do
