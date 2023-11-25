@@ -39,11 +39,14 @@ for number = 1, 25 do
     local question_with_day = string.format('day%d%s', number, part)
     local question = string.format('%d%s', number, part)
     local correct_answer = answers[question_with_day]
+
+    local start = os.clock()
     local result = days[number][part]()
+    local time = os.clock() - start
     local pass_or_fail_string = ''
     if result ~= correct_answer then
         pass_or_fail_string = 'FALSE'
     end
-    print(string.format('%s:\t%s\t%s', question, result, pass_or_fail_string))
+    print(string.format('%-4s(%.2fs):\t%s\t%s', question, time, result, pass_or_fail_string))
   end
 end

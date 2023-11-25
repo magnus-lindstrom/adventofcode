@@ -1,3 +1,10 @@
+# Question 10
+
+Table creation is expensive in lua. Better to reuse and repopulate tables if possible.
+
+Therefore, updated the solution to just be one bigger table, instead of a smaller one containing
+many subtables. Runtime went from 11s to 5.6s
+
 # Question 20
 
 ## My first solution
