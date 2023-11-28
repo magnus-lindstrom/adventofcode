@@ -7,4 +7,7 @@ target
 thoughts
 tmpout
 build
+
+# Python
 .venv
+__pycache__

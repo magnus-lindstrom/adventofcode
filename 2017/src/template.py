@@ -14,6 +14,12 @@ def a():
 def b():
     return 0
 
+def test_a():
+    assert a() == 0
+
+def test_b():
+    assert b() == 0
+
 if __name__ == "__main__":
     print('a:', a())
     print('b:', b())

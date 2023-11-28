@@ -33,6 +33,12 @@ def b():
             if line_done: break
     return summ
 
+def test_a():
+    assert a() == 42299
+
+def test_b():
+    assert b() == 277
+
 if __name__ == "__main__":
     print('a:', a())
     print('b:', b())
