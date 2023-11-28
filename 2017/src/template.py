@@ -1,0 +1,19 @@
+import pathlib
+
+
+def get_input():
+    q_nr = pathlib.Path(__file__).stem
+    file_name = pathlib.Path('inputs/' + q_nr)
+    with open(file=file_name) as f:
+        a = [line.strip() for line in f.readlines()]
+    return a
+
+def a():
+    return 0
+
+def b():
+    return 0
+
+if __name__ == "__main__":
+    print('a:', a())
+    print('b:', b())
