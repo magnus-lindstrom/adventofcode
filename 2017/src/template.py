@@ -5,8 +5,7 @@ def get_input():
     q_nr = pathlib.Path(__file__).stem
     file_name = pathlib.Path('inputs/' + q_nr)
     with open(file=file_name) as f:
-        a = [line.strip() for line in f.readlines()]
-    return a
+        return [line.strip() for line in f.readlines()]
 
 def a():
     return 0
