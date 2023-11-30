@@ -11,5 +11,5 @@ curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
 And then, within a virtual environment:
 ```bash
 pip install --upgrade pip
-pip install pytest-xdist
+pip install -r requirements.txt
 ```
