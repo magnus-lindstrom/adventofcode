@@ -19,7 +19,6 @@ def a():
         nr = nr[0] + nr[-1]
         summ += int(nr)
 
-
     return summ
 
 def b():
