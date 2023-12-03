@@ -8,6 +8,8 @@ def get_input():
         return [line.strip() for line in f.readlines()]
 
 def a():
+    inp = get_input()
+    print(inp)
     return 0
 
 def b():
