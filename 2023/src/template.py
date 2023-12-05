@@ -9,10 +9,14 @@ def get_input():
 
 def a():
     inp = get_input()
+    for line in inp:
+        print(line)
     return 0
 
 def b():
     inp = get_input()
+    for line in inp:
+        print(line)
     return 0
 
 def test_a():
