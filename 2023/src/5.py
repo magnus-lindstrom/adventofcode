@@ -307,11 +307,19 @@ def fast_b():
                     [dest_range_start, dest_range_start+range_length-1]
                 ])
 
+        min_value = maxsize
+        max_value = 0
+        for ranges in seed_to_soil_ranges:
+            for r in ranges:
+                if r[0] < min_value:
+                    min_value = r[0]
+                if r[1] > max_value:
+                    max_value = r[1]
+
         not_done = True
-        min_value = 0
-        max_value = maxsize
-        while not_done:
-            pass
+        #while not_done:
+            #starting_range = seed_to_soil_ranges.index()
+
 
 
 def test_a():
