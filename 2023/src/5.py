@@ -2,11 +2,6 @@ import pathlib
 from sys import maxsize
 
 
-def get_test_input():
-    file_name = pathlib.Path('inputs/5_test')
-    with open(file=file_name) as f:
-        return [line.strip() for line in f.readlines()]
-
 def get_input():
     q_nr = pathlib.Path(__file__).stem
     file_name = pathlib.Path('inputs/' + q_nr)
@@ -78,7 +73,8 @@ def get_initial_seeds_and_conversions(inp):
                 min_value = conversion['source_start']
             elif conversion['source_start'] + conversion['range_length'] > max_value:
                 max_value = conversion['source_start'] + conversion['range_length']
-        # add conversions from 0 to beyond the maximum value
+        # add conversions from 0 to beyond the maximum value to make interval
+        # conversions easier in b()
         if min_value > 0:
             conversions.append({'dest_start': 0, 'source_start': 0,
                                 'range_length': min_value})
@@ -156,85 +152,9 @@ def slow_naive_b():
                 if seed_range[0] <= value < seed_range[0] + seed_range[1]:
                     return start_value
 
-def fast_b():
-    inp = get_input()
-    inp = get_test_input()
-    initial_seed_ranges = []
-    section_reading = 0
-    seed_to_soil_ranges = []
-    soil_to_fertilizer_ranges = []
-    fertilizer_to_water_ranges = []
-    water_to_light_ranges = []
-    light_to_temperature_ranges = []
-    temperature_to_humidity_ranges = []
-    humidity_to_location_ranges = []
-    for line in inp:
-        #print(line)
-        if line == '':
-            section_reading += 1
-        elif section_reading == 0:
-            nrs = line.split()[1:]
-            for i in range(0, len(nrs), 2):
-                initial_seed_ranges.append([int(nrs[i]), int(nrs[i+1])])
-        else:
-            words = line.split()
-            if not words[0].isdigit():
-                continue  # heading
-
-            dest_range_start = int(words[0])
-            source_range_start = int(words[1])
-            range_length = int(words[2])
-            if section_reading == 1:
-                seed_to_soil_ranges.append([
-                    [source_range_start, source_range_start+range_length-1],
-                    [dest_range_start, dest_range_start+range_length-1]
-                ])
-            elif section_reading == 2:
-                soil_to_fertilizer_ranges.append([
-                    [source_range_start, source_range_start+range_length-1],
-                    [dest_range_start, dest_range_start+range_length-1]
-                ])
-            elif section_reading == 3:
-                fertilizer_to_water_ranges.append([
-                    [source_range_start, source_range_start+range_length-1],
-                    [dest_range_start, dest_range_start+range_length-1]
-                ])
-            elif section_reading == 4:
-                water_to_light_ranges.append([
-                    [source_range_start, source_range_start+range_length-1],
-                    [dest_range_start, dest_range_start+range_length-1]
-                ])
-            elif section_reading == 5:
-                light_to_temperature_ranges.append([
-                    [source_range_start, source_range_start+range_length-1],
-                    [dest_range_start, dest_range_start+range_length-1]
-                ])
-            elif section_reading == 6:
-                temperature_to_humidity_ranges.append([
-                    [source_range_start, source_range_start+range_length-1],
-                    [dest_range_start, dest_range_start+range_length-1]
-                ])
-            elif section_reading == 7:
-                humidity_to_location_ranges.append([
-                    [source_range_start, source_range_start+range_length-1],
-                    [dest_range_start, dest_range_start+range_length-1]
-                ])
-
-        min_value = maxsize
-        max_value = 0
-        for ranges in seed_to_soil_ranges:
-            for r in ranges:
-                if r[0] < min_value:
-                    min_value = r[0]
-                if r[1] > max_value:
-                    max_value = r[1]
-
-    for seed_range in initial_seed_ranges:
-        rangee = seed_range.copy()
 
 def b():
     inp = get_input()
-    #inp = get_test_input()
     (initial_seed_values, seed_to_soil, soil_to_fertilizer, fertilizer_to_water,
      water_to_light, light_to_temperature, temperature_to_humidity,
      humidity_to_location) = get_initial_seeds_and_conversions(inp)
@@ -245,50 +165,37 @@ def b():
     for i in range(0, len(initial_seed_values), 2):
         initial_seed_ranges.append([initial_seed_values[i], initial_seed_values[i+1]])
 
-    #for rangee in initial_seed_ranges:
-        #print(rangee)
 
     ranges = initial_seed_ranges
     for conversions in [seed_to_soil, soil_to_fertilizer, fertilizer_to_water,
                         water_to_light, light_to_temperature,
                         temperature_to_humidity, humidity_to_location]:
         new_ranges = []
-        #print(conversions)
-        #print(ranges)
         for rangee in ranges:
             for conv in conversions:
-                #print('range: {}, conversion: {}'.format(rangee, conv))
                 # check if left interval "border" is included in conversion range
                 if conv['source_start'] <= rangee[0] < conv['source_start'] + conv['range_length']:
                     # is whole range included in conversion range?
                     if rangee[0] + rangee[1] <= conv['source_start'] + conv['range_length']:
                         offset = rangee[0] - conv['source_start']
-                        #print('A appending [{}, {}]'.format(conv['dest_start'] + offset, rangee[1]))
                         new_ranges.append([conv['dest_start'] + offset, rangee[1]])
                     else:  # only part of range is included
                         offset = rangee[0] - conv['source_start']
-                        #print('B appending [{}, {}]'.format(conv['dest_start'] + offset, conv['range_length'] - offset))
                         new_ranges.append([conv['dest_start'] + offset, conv['range_length'] - offset])
 
                 # check if right interval "border" is included in conversion range
                 elif conv['source_start'] <= rangee[0] + rangee[1] - 1 < conv['source_start'] + conv['range_length']:
-                    #print('C appending [{}, {}]'.format(conv['dest_start'], rangee[0] + rangee[1] - conv['source_start']))
                     new_ranges.append([conv['dest_start'], rangee[0] + rangee[1] - conv['source_start']])
                     # No need to check if entire range is included again
                 # check if entire conversion range is within the incoming range
                 elif (rangee[0] <= conv['source_start'] < rangee[0] + rangee[1]
                       and rangee[0] <= conv['source_start'] +
                       conv['range_length'] - 1 < rangee[0] + rangee[1]):
-                    #print('D appending [{}, {}]'.format(conv['dest_start'], conv['range_length']))
                     new_ranges.append([conv['dest_start'], conv['range_length']])
 
 
-        #print(new_ranges)
-        #print()
         ranges = new_ranges.copy()
-        #if not ranges:
-            #return
-    #print(ranges)
+
     return min(ranges, key=lambda x: x[0])[0]
 
 
