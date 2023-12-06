@@ -1,3 +1,4 @@
+import math
 import pathlib
 
 
@@ -34,15 +35,12 @@ def b():
     time = int(''.join(inp[0].split()[1:]))
     distance = int(''.join(inp[1].split()[1:]))
 
-    ways = 0
-    for seconds_holding in range(time):
-        speed = seconds_holding
-        time_left = time - seconds_holding
-        distance_traveled = time_left * speed
-        if distance_traveled > distance:
-            ways += 1
-
-    return ways
+    # wait1 is the first waiting time that we win
+    # wait2 is the last
+    # wait2 - wait1 + 1 gives the number of integer waiting times that we win
+    wait1 = math.ceil(time/2 - math.sqrt(pow((time/2),2) - distance))
+    wait2 = math.floor(time/2 + math.sqrt(pow((time/2),2) - distance))
+    return wait2 - wait1 + 1
 
 def test_a():
     assert a() == 2756160
