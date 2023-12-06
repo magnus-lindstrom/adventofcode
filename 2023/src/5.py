@@ -13,34 +13,7 @@ def get_input():
     with open(file=file_name) as f:
         return [line.strip() for line in f.readlines()]
 
-def a_old():
-    inp = get_input()
-    initial_seeds = []
-    section_reading = 0
-    seed_to_soil = {}
-    for line in inp:
-        print(line)
-        if line == '':
-            section_reading += 1
-        elif section_reading == 0:
-            initial_seeds.extend(line.split()[1:])
-        else:
-            words = line.split()
-            if not words[0].isdigit():
-                continue  # heading
-
-            dest_range_start = int(words[0])
-            source_range_start = int(words[1])
-            range_length = int(words[2])
-            if section_reading == 1:
-                for source, dest in zip(range(source_range_start, source_range_start+range_length+1),
-                                        range(dest_range_start, dest_range_start+range_length+1)):
-                    print(source, dest)
-    return 0
-
-def a():
-    inp = get_input()
-    #inp = get_test_input()
+def get_initial_seeds_and_conversions(inp):
     initial_seeds = []
     section_reading = 0
     seed_to_soil = []
@@ -51,7 +24,6 @@ def a():
     temperature_to_humidity = []
     humidity_to_location = []
     for line in inp:
-        #print(line)
         if line == '':
             section_reading += 1
         elif section_reading == 0:
@@ -100,126 +72,45 @@ def a():
     temperature_to_humidity.sort(key=lambda x: x['source_start'])
     humidity_to_location.sort(key=lambda x: x['source_start'])
 
-    #for e in seed_to_soil:
-        #print(e['source_start'])
+    return (
+        initial_seeds, seed_to_soil, soil_to_fertilizer,
+        fertilizer_to_water, water_to_light, light_to_temperature,
+        temperature_to_humidity, humidity_to_location
+    )
+
+def a():
+    inp = get_input()
+    #inp = get_test_input()
+    (initial_seeds, seed_to_soil, soil_to_fertilizer, fertilizer_to_water,
+     water_to_light, light_to_temperature, temperature_to_humidity,
+     humidity_to_location) = get_initial_seeds_and_conversions(inp)
+
     final_values = []
 
     for seed in initial_seeds:
         value = seed
-        #print('new value:', value)
         for conversion in [seed_to_soil, soil_to_fertilizer, fertilizer_to_water, water_to_light, light_to_temperature, temperature_to_humidity, humidity_to_location]:
             for rangee in conversion:
-                #print(conversion)
                 if rangee['source_start'] <= value < rangee['source_start'] + rangee['range_length']:
                     offset = value - rangee['source_start']
                     value = rangee['dest_start'] + offset
-                    #print('value:', value)
                     break
 
-
-
-
-
-            # for rangee in conversion:
-            #     # At most one rangee will make a conversion, the rest will not
-            #     if rangee['dest_start'] < rangee['source_start']:
-            #         if value < rangee['dest_start']:
-            #             break
-            #         elif rangee['dest_start'] <= value < rangee['source_start']:
-            #             value = value + rangee['range_length']
-            #             break
-            #         elif rangee['source_start'] <= value < rangee['source_start'] + rangee['range_length']:
-            #             offset = value - rangee['source_start']
-            #             value = rangee['dest_start'] + offset
-            #             break
-            #     if rangee['source_start'] < rangee['dest_start']:
-            #         if value < rangee['source_start']:
-            #             break
-            #         elif rangee['source_start'] <= value < rangee['dest_start']:
-            #             value = value + rangee['range_length']
-            #             break
-            #         elif rangee['dest_start'] <= value < rangee['dest_start'] + rangee['range_length']:
-            #             offset = value - rangee['dest_start']
-            #             value = rangee['source_start'] + offset
-            #             break
-            # print('value:', value)
         final_values.append(value)
     return min(final_values)
-
-
-
-
-
-
-
-                    #if value < rangee['source_start']:
-                        #value = value + offset
-                        #break
-                    #elif rangee['source_start'] <= value < rangee['source_start'] + rangee['range_length']:
-                        #offset += value - rangee['source_start']
-                        #value = rangee['dest_range_start'] + offset
-                        #break
-                    #elif rangee['source_start'] + rangee['range_length'] <= value
-                    #else:
-                        #offset += rangee['range_length']
 
 def b():
     inp = get_input()
     #inp = get_test_input()
-    initial_seed_ranges = []
-    section_reading = 0
-    seed_to_soil = []
-    soil_to_fertilizer = []
-    fertilizer_to_water = []
-    water_to_light = []
-    light_to_temperature = []
-    temperature_to_humidity = []
-    humidity_to_location = []
-    for line in inp:
-        #print(line)
-        if line == '':
-            section_reading += 1
-        elif section_reading == 0:
-            nrs = line.split()[1:]
-            for i in range(0, len(nrs), 2):
-                initial_seed_ranges.append([int(nrs[i]), int(nrs[i+1])])
-        else:
-            words = line.split()
-            if not words[0].isdigit():
-                continue  # heading
+    (initial_seed_values, seed_to_soil, soil_to_fertilizer, fertilizer_to_water,
+     water_to_light, light_to_temperature, temperature_to_humidity,
+     humidity_to_location) = get_initial_seeds_and_conversions(inp)
 
-            dest_range_start = int(words[0])
-            source_range_start = int(words[1])
-            range_length = int(words[2])
-            if section_reading == 1:
-                seed_to_soil.append({'dest_start': dest_range_start,
-                                     'source_start': source_range_start,
-                                     'range_length': range_length})
-            elif section_reading == 2:
-                soil_to_fertilizer.append({'dest_start': dest_range_start,
-                                     'source_start': source_range_start,
-                                     'range_length': range_length})
-            elif section_reading == 3:
-                fertilizer_to_water.append({'dest_start': dest_range_start,
-                                     'source_start': source_range_start,
-                                     'range_length': range_length})
-            elif section_reading == 4:
-                water_to_light.append({'dest_start': dest_range_start,
-                                     'source_start': source_range_start,
-                                     'range_length': range_length})
-            elif section_reading == 5:
-                light_to_temperature.append({'dest_start': dest_range_start,
-                                     'source_start': source_range_start,
-                                     'range_length': range_length})
-            elif section_reading == 6:
-                temperature_to_humidity.append({'dest_start': dest_range_start,
-                                     'source_start': source_range_start,
-                                     'range_length': range_length})
-            elif section_reading == 7:
-                humidity_to_location.append({'dest_start': dest_range_start,
-                                     'source_start': source_range_start,
-                                     'range_length': range_length})
     humidity_to_location.sort(key=lambda x: x['dest_start'])
+
+    initial_seed_ranges = []
+    for i in range(0, len(initial_seed_values), 2):
+        initial_seed_ranges.append([initial_seed_values[i], initial_seed_values[i+1]])
 
     counter = 1
 
@@ -316,9 +207,9 @@ def fast_b():
                 if r[1] > max_value:
                     max_value = r[1]
 
-        not_done = True
-        #while not_done:
-            #starting_range = seed_to_soil_ranges.index()
+    for seed_range in initial_seed_ranges:
+        rangee = seed_range.copy()
+
 
 
 
@@ -330,4 +221,5 @@ def test_b():
 
 if __name__ == '__main__':
     print('a:', a())
+    #print('b:', fast_b())
     print('b:', b())
