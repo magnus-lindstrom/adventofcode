@@ -15,6 +15,7 @@ def a():
 
 def b():
     inp = get_input()
+    return
     for line in inp:
         print(line)
     return 0
