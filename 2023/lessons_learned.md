@@ -1,3 +1,25 @@
+# Consider these options if you are stuck
+
+1. Memoization
+    - If you have to compute the same values over and over, store them in a dict and look for
+      solutions there before computing them.
+2. Recursion
+    - Will you exceed the recursion depth of 1000 in Python? Is that OK for this task? Can be
+      increased but not indefinitely.
+3. Pathfinding:
+    - BFS: Breadth First Search
+        - Do not maintain distance travelled in each state. Evaluate points in the order that they
+          were added to the list.
+    - Dijkstra's
+        - Maintain an ordered list, ordered by the distance travelled to get to each node.
+        - The same as BFD if the distances between points in the graph are always equal.
+    - A star
+        - If there is a way of estimating distance left to target *without* overestimating that
+          distance, you can use A star.
+        - Maintain an ordered list of states, ordered by distance travelled + estimated distance
+          remaining. Always evaluate the one with minimum f = g + h. As soon as you pick a state
+          that is the end-point, that is the optimal solution.
+
 # Day 1
 
 Could have used string.startswith() instead of string[i:i+2], since I had to check that i+3 was
@@ -19,3 +41,12 @@ Lessons:
 - Do not do a recursive solution if you suspect that it will require more than 1000 levels in
   Python. It gets IMPOSSIBLE to debug what the problem is and if your program would finish if it
   could only recurse further.
+
+# Day 12
+
+I should definitely have a list of things that I must consider when being stuck on a huge problem.
+For day 12, I spent a looot of time thinking about how the hell to compute all of the different
+combinations when the solution is simply 'memoization'. It was super fast to implement and runs
+fast.
+
+Adding that list to the top of this document.
