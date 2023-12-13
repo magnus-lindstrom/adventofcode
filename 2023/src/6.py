@@ -2,11 +2,6 @@ import math
 import pathlib
 
 
-def get_test():
-    file_name = pathlib.Path('inputs/6_test')
-    with open(file=file_name) as f:
-        return [line.strip() for line in f.readlines()]
-
 def get_input():
     q_nr = pathlib.Path(__file__).stem
     file_name = pathlib.Path('inputs/' + q_nr)

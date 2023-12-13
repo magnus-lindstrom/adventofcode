@@ -1,18 +1,6 @@
 import pathlib
 
 
-def get_test_inp():
-    return '''467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598..'''.split('\n')
-
 def get_input():
     q_nr = pathlib.Path(__file__).stem
     file_name = pathlib.Path('inputs/' + q_nr)
