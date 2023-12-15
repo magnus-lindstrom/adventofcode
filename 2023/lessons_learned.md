@@ -50,3 +50,8 @@ combinations when the solution is simply 'memoization'. It was super fast to imp
 fast.
 
 Adding that list to the top of this document.
+
+# Day 15
+
+Using 'myList = [[]] * 10' in Python will create 10 copies of the same list, and they can not be
+modified independently, since they are the same list.
