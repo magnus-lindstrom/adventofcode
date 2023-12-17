@@ -1,3 +1,4 @@
+import argparse
 import pathlib
 import sys
 
@@ -5,12 +6,15 @@ import sys
 sys.setrecursionlimit(10000)
 
 
-def get_input():
+def get_input(test=False):
     q_nr = pathlib.Path(__file__).stem
     file_name = pathlib.Path('inputs/' + q_nr)
+    if test:
+        file_name = pathlib.Path('inputs/' + q_nr + '_test')
+    else:
+        file_name = pathlib.Path('inputs/' + q_nr)
     with open(file=file_name) as f:
         return [line.strip() for line in f.readlines()]
-
 
 
 def energize_tiles(memo, tiles, energized, heading, row, col, max_row, max_col):
@@ -67,8 +71,8 @@ def energize_tiles(memo, tiles, energized, heading, row, col, max_row, max_col):
     return energized, memo
 
 
-def a():
-    inp = get_input()
+def a(inp):
+
     tiles = {}
     for i_row, line in enumerate(inp):
         for i_col, char in enumerate(line):
@@ -80,9 +84,8 @@ def a():
     energized, memo = energize_tiles(memo, tiles, energized, 'right', 0, 0, len(inp), len(inp[0]))
     return len(energized)
 
-def b():
+def b(inp):
 
-    inp = get_input()
     tiles = {}
     for i_row, line in enumerate(inp):
         for i_col, char in enumerate(line):
@@ -107,11 +110,18 @@ def b():
     return max_energized
 
 def test_a():
-    assert a() == 7477
+    inp = get_input()
+    assert a(inp) == 7477
 
 def test_b():
-    assert b() == 7853
+    inp = get_input()
+    assert b(inp) == 7853
 
 if __name__ == '__main__':
-    print('a:', a())
-    print('b:', b())
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--test', dest='test', action='store_true')
+    args = parser.parse_args()
+    inp = get_input(test=args.test)
+
+    print('a:', a(inp))
+    print('b:', b(inp))
