@@ -55,3 +55,7 @@ Adding that list to the top of this document.
 
 Using 'myList = [[]] * 10' in Python will create 10 copies of the same list, and they can not be
 modified independently, since they are the same list.
+
+# Day 18
+
+Shoelace Formula would have been handy to learn on day 10, since it came to use once again.
