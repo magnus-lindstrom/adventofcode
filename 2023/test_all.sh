@@ -8,4 +8,4 @@ set -e
 # 'files' is an array, which is later expanded into separate arguments for
 # pytest
 files=( $(fdfind --max-depth=1 '\d{1,2}\.py' src/) )
-pytest -n 10 --durations=0 --durations-min='0.1' "${files[@]}"
+pytest -n 4 --durations=0 --durations-min='0.1' "${files[@]}"
