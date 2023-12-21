@@ -63,4 +63,5 @@ Shoelace Formula would have been handy to learn on day 10, since it came to use 
 # Day 21
 
 PRINT WHAT YOU'RE WORKING ON if you are fumbling in the dark. You almost always can, and it helps
-tremendously.
+tremendously. I wasted hours on today's question because I never printed and did not see that my
+plan was never going to work.
