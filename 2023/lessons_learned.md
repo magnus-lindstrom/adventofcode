@@ -65,3 +65,8 @@ Shoelace Formula would have been handy to learn on day 10, since it came to use 
 PRINT WHAT YOU'RE WORKING ON if you are fumbling in the dark. You almost always can, and it helps
 tremendously. I wasted hours on today's question because I never printed and did not see that my
 plan was never going to work.
+
+# Day 23
+
+Finding the longest path in an undirected, cyclic tree requires checking _all_ possible paths and
+finding the shortest one.
