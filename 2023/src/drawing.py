@@ -1,17 +1,139 @@
 import curses
+from abc import ABC, abstractmethod
 from time import sleep
 
 
-class BulkDraw:
+class DrawBase(ABC):
     def __init__(self):
-        self.string = ''
+        pass
 
+    @abstractmethod
+    def draw(self, stdscr):
+        pass
+
+class BulkDraw(DrawBase):
+    def __init__(self, string='', column=0, row=0, sleep_sec=0,
+                 keypress_after=False):
+        self.string = string
+        self.column = column
+        self.row = row
+        self.sleep = sleep_sec
+        self.keypress_after = keypress_after
+
+    def set_position(self, row, column):
+        self.row = row
+        self.column = column
+
+    def add_to_str(self, string):
+        self.string += string
+
+    def add_sleep_after(self, sleep_sec):
+        self.sleep = sleep_sec
+
+    def draw(self, stdscr):
+        stdscr.addstr(self.row, self.column, self.string)
+        if self.sleep:
+            stdscr.refresh()
+            sleep(self.sleep)
+        if self.keypress_after:
+            stdscr.getch()
+
+
+class CharSeqDraw(DrawBase):
+    def __init__(self, chars=None, rows=None, columns=None,
+                 keypress_after=False):
+        if not chars is None and not rows is None and not columns is None:
+            self.chars = chars
+            self.rows = rows
+            self.columns = columns
+        else:
+            self.chars = []
+            self.rows = []
+            self.columns = []
+        self.keypress_after = keypress_after
+        self.time = 0.0
+        self.colors = []
+
+    def add_char(self, char, row, col, color=0):
+        self.chars.append(char)
+        self.rows.append(row)
+        self.columns.append(col)
+        self.colors.append(color)
+
+    def set_total_sleep(self, sleep_sec):
+        self.sleep = sleep_sec / len(self.chars)
+
+    def set_individual_sleep(self, sleep_sec):
+        self.sleep = sleep_sec
+
+    def draw(self, stdscr, required_color_pairs):
+        for char, row, col, color in zip(self.chars, self.rows, self.columns,
+                                         self.colors):
+            if (row, col) in required_color_pairs:
+                stdscr.addch(
+                    row, col, char,
+                    curses.color_pair(required_color_pairs[(row, col)])
+                )
+            else:
+                stdscr.addch(row, col, char, curses.color_pair(color))
+
+            if self.sleep > 0:
+                stdscr.refresh()
+                sleep(self.sleep)
+        if self.keypress_after:
+            stdscr.getch()
 
 class Drawer:
     def __init__(self):
         self.bulk_draw_str = ''
         self.draw_list = []
-        pass
+        self.draw_elements: list[DrawBase] = []
+        self.color_pairs = []
+        self.position_colors = {}
+
+    def add_draw_element(self, element: DrawBase):
+        self.draw_elements.append(element)
+
+    def require_color_pair_for_pos(self, color_pair, row, col):
+        self.position_colors[(row, col)] = color_pair
+
+    def clear_draw_elements(self):
+        self.draw_elements = []
+
+    def get_curses_color(self, color):
+        if color == 'black':
+            return curses.COLOR_BLACK
+        elif color == 'white':
+            return curses.COLOR_WHITE
+        elif color == 'red':
+            return curses.COLOR_RED
+        elif color == 'green':
+            return curses.COLOR_GREEN
+        elif color == 'yellow':
+            return curses.COLOR_YELLOW
+        elif color == 'blue':
+            return curses.COLOR_BLUE
+        else:
+            raise Exception('Could not find color')
+
+    def set_color_pair(self, foreground, background):
+        fore_real = self.get_curses_color(foreground)
+        back_real = self.get_curses_color(background)
+        self.color_pairs.append((back_real, fore_real))
+
+    def draw_draw_elements(self):
+        def main(stdscr):
+            curses.curs_set(0)  # make cursor invisible
+            curses.start_color()
+            curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_RED)
+            curses.use_default_colors()
+            for element in self.draw_elements:
+                if type(element) == CharSeqDraw:
+                    element.draw(stdscr, self.position_colors)
+                else:
+                    element.draw(stdscr)
+
+        curses.wrapper(main)
 
     def check_window_dimensions(self, inp):
         def main(stdscr):

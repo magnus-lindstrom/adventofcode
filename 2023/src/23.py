@@ -1,8 +1,5 @@
 import argparse
 import pathlib
-from collections import defaultdict
-
-import drawing
 
 
 def get_input(test=False):
@@ -232,20 +229,22 @@ def max_steps_rec(junction, been, steps_taken, connections, final_tile):
     return max_steps
 
 def visualise(inp):
-    d = drawing.Drawer()
+    drawer = drawing.Drawer()
+    drawer.set_color_pair('red', 'red')
     #d.check_window_dimensions(inp)
     #return
     walls = set()
+    bulk_draw = drawing.BulkDraw()
     for i_line, line in enumerate(inp):
         for i_char, char in enumerate(line):
             if char == '#':
                 walls.add((i_line, i_char))
-                d.bulk_str_add('#')
+                bulk_draw.add_to_str('#')
             else:
-                d.bulk_str_add(' ')
-        d.bulk_str_add('\n')
+                bulk_draw.add_to_str(' ')
+        bulk_draw.add_to_str('\n')
 
-    d.bulk_draw(sleep_sec=1)
+    drawer.add_draw_element(bulk_draw)
 
     final_tile = (len(inp) - 1, len(inp) - 2)
     final_tile_id = -1
@@ -257,7 +256,7 @@ def visualise(inp):
     connections = []
     connections.append([])
     junction_to_id = {(0, 1): 0}
-    path_between_nodes = {}
+    path_between_nodes = {0: {}}
 
     state_queue = []
     # row, col, last_junction_id, came_from, steps_taken_since_last_junction, path_taken
@@ -285,7 +284,9 @@ def visualise(inp):
                 connections[last_junction_id].append((
                     final_tile_id, steps_since_junction + 1
                 ))
-                path_between_nodes[last_junction_id] = {final_tile_id: path_taken}
+                final_path = path_taken.copy()
+                final_path.append(final_tile)
+                path_between_nodes[last_junction_id][final_tile_id] = path_taken
 
             else:
                 new_path_taken = path_taken.copy()
@@ -312,6 +313,7 @@ def visualise(inp):
                 ))
 
                 path_between_nodes[last_junction_id][junction_to_id[this_junction]] = path_taken
+                path_between_nodes[junction_to_id[this_junction]][last_junction_id] = reversed(path_taken)
                 continue
             else:
                 this_junction_id = len(junction_to_id)
@@ -319,8 +321,8 @@ def visualise(inp):
                 connections[last_junction_id].append((
                     this_junction_id, steps_since_junction
                 ))
-                path_between_nodes[last_junction_id] = {junction_to_id[this_junction]: path_taken}
-                path_between_nodes[this_junction_id] = {}
+                path_between_nodes[last_junction_id][this_junction_id] = path_taken
+                path_between_nodes[this_junction_id] = {last_junction_id: reversed(path_taken)}
 
             connections.append([(last_junction_id, steps_since_junction)])
 
@@ -335,21 +337,31 @@ def visualise(inp):
                 ]
                 state_queue.append(new_state)
 
+    draw_list = drawing.CharSeqDraw()
     for x, y in junction_to_id.keys():
-        d.char_list_push('X', x, y)
-    d.char_list_draw(sleep_sec=0.5)
+        drawer.require_color_pair_for_pos(1, x, y)
+        draw_list.add_char('X', x, y)
+    draw_list.set_total_sleep(3)
+    drawer.add_draw_element(draw_list)
 
     been = {j: False for j in range(len(junction_to_id))}
 
     max_steps, nodes_traversed = max_steps_rec_for_drawing(0, been, 0, connections, final_tile_id)
-    d.draw_str('Longest path is {} steps.'. format(max_steps), row=len(inp) + 4)
+    bulk_draw = drawing.BulkDraw(
+        string='Longest path is {} steps.'. format(max_steps),
+        row=len(inp) + 2
+    )
+    drawer.add_draw_element(bulk_draw)
+    draw_list = drawing.CharSeqDraw(keypress_after=True)
+
     for i_junk in range(len(nodes_traversed[:-1])):
         node1 = nodes_traversed[i_junk]
         node2 = nodes_traversed[i_junk + 1]
         for node in path_between_nodes[node1][node2]:
-            d.char_list_push('O', node[0], node[1])
-    d.char_list_draw(sleep_sec_total=5)
-    d.wait_for_keypress()
+            draw_list.add_char('O', node[0], node[1])
+    draw_list.set_total_sleep(5)
+    drawer.add_draw_element(draw_list)
+    drawer.draw_draw_elements()
 
 
 def max_steps_rec_for_drawing(junction, been, steps_taken, connections, final_tile):
@@ -395,6 +407,7 @@ if __name__ == '__main__':
         print('### Profiling part 2 ###\n')
         __import__('cProfile').run('b(inp)')
     elif args.visualise:
+        import drawing  # pytest complains if I try to import at the top..
         visualise(inp)
     else:
         print('a:', a(inp))
