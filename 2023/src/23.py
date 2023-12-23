@@ -126,15 +126,6 @@ def b(inp):
         for i_char, char in enumerate(line):
             if char == '#':
                 walls.add((i_line, i_char))
-    #for row in range(len(inp)):
-    #    for col in range(len(inp[0])):
-    #        if (row, col) in walls:
-    #            print('#', end='')
-    #        else:
-    #            print('.', end='')
-    #    print()
-    #print()
-
 
     final_tile = (len(inp) - 1, len(inp) - 2)
     going_to_directions = ['west', 'east', 'north', 'south']
@@ -198,22 +189,29 @@ def b(inp):
     state_queue.append([(0, 1), [], 0])
     route = None
     max_steps = 0
+    been = {j: False for j in junctions_visited}
+    been[final_tile] = False
+    been[(0, 1)] = True
 
-    while state_queue:
-        current_junction, previous_junctions, steps_taken = state_queue.pop()
-        for possible_junction, steps in connections[current_junction].items():
-            if possible_junction not in previous_junctions:
-                if possible_junction == final_tile:
-                    final_steps = steps_taken + steps
-                    if final_steps > max_steps:
-                        max_steps = final_steps
-                        route = previous_junctions.copy()
+    max_steps = max_steps_rec((0, 1), been, 0, connections, final_tile)
 
-                else:
-                    new_previous_junctions = previous_junctions.copy()
-                    new_previous_junctions.append(current_junction)
-                    new_state = [possible_junction, new_previous_junctions, steps_taken + steps]
-                    state_queue.append(new_state)
+    return max_steps
+
+def max_steps_rec(junction, been, steps_taken, connections, final_tile):
+    if junction == final_tile:
+        return steps_taken
+
+    max_steps = 0
+    for possible_junction, steps in connections[junction].items():
+        if not been[possible_junction]:
+            been[possible_junction] = True
+            new_steps = max_steps_rec(
+                possible_junction, been, steps_taken + steps, connections,
+                final_tile
+            )
+            been[possible_junction] = False
+            if new_steps > max_steps:
+                max_steps = new_steps
 
     return max_steps
 
@@ -226,9 +224,15 @@ def test_b():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--test', dest='test', action='store_true')
+    parser.add_argument('-p', '--profile', dest='profile', action='store_true')
     args = parser.parse_args()
     inp = get_input(test=args.test)
 
-    print('a:', a(inp))
-    print('b:', b(inp))
-    __import__('cProfile').run('test_b()')
+    if args.profile:
+        print('\n### Profiling part 1 ###\n')
+        __import__('cProfile').run('a(inp)')
+        print('### Profiling part 2 ###\n')
+        __import__('cProfile').run('b(inp)')
+    else:
+        print('a:', a(inp))
+        print('b:', b(inp))
