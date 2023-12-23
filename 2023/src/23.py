@@ -132,20 +132,18 @@ def b(inp):
     going_to_directions = ['west', 'east', 'north', 'south']
     coming_from_directions = ['east', 'west', 'south', 'north']
 
-    state_queue = []
-    junctions_visited = set()
-    junctions_visited.add((0, 1))
-    # row, col, last_junction, came_from, steps taken since last junction
-    state_queue.append((1, 1, (0, 1), 'north', 1))
-
     # in index i, you find the connections between junction i and other indexes
     # ix given in [(i1, steps), (i2, steps)..]
     connections = []
     connections.append([])
     junction_to_id = {(0, 1): 0}
 
+    state_queue = []
+    # row, col, last_junction_id, came_from, steps taken since last junction
+    state_queue.append((1, 1, 0, 'north', 1))
+
     while state_queue:
-        row, col, last_junction, came_from, steps_since_junction = state_queue.pop()  # from the back
+        row, col, last_junction_id, came_from, steps_since_junction = state_queue.pop()  # from the back
 
         new_tiles = [(row, col-1), (row, col+1), (row-1, col), (row+1, col)]
         possible_paths = []
@@ -160,93 +158,63 @@ def b(inp):
                     final_tile_id = len(junction_to_id)
                     junction_to_id[new_tiles[possible_paths[0]]] = final_tile_id
                     connections.append([(
-                        junction_to_id[last_junction], steps_since_junction + 1
+                        last_junction_id, steps_since_junction + 1
                     )])
 
-                connections[junction_to_id[last_junction]].append((
+                connections[last_junction_id].append((
                     final_tile_id, steps_since_junction + 1
                 ))
 
-            else:  # is not goal tile
+            else:
                 new_state = [
                     new_tiles[possible_paths[0]][0],
                     new_tiles[possible_paths[0]][1],
-                    last_junction,
+                    last_junction_id,
                     coming_from_directions[possible_paths[0]],
                     steps_since_junction + 1,
                 ]
                 state_queue.append(new_state)
         elif len(possible_paths) > 1:
             this_junction = (row, col)
-            if this_junction not in junction_to_id:
-                junction_to_id[this_junction] = len(junction_to_id)
-
-            connections[junction_to_id[last_junction]].append((
-                junction_to_id[this_junction], steps_since_junction
-            ))
-
-            if this_junction in junctions_visited:
+            if this_junction in junction_to_id:
+                # if the coordinates of a junction is in junction_to_id, we have visited it
+                # add a connection from the last junction to this (the
+                # connection from this to the last junction is taken care of in
+                # another state, since we have apparently already been to this
+                # junction)
+                connections[last_junction_id].append((
+                    junction_to_id[this_junction], steps_since_junction
+                ))
                 continue
+            else:
+                this_junction_id = len(junction_to_id)
+                junction_to_id[this_junction] = this_junction_id
+                connections[last_junction_id].append((
+                    this_junction_id, steps_since_junction
+                ))
 
-            junctions_visited.add(this_junction)
-
-            # we add a junction to id map without expanding new_connections with []
-
-            connections.append([(
-                junction_to_id[last_junction], steps_since_junction
-            )])
+            connections.append([(last_junction_id, steps_since_junction)])
 
             for ip in possible_paths:
                 new_state = [
                     new_tiles[ip][0],
                     new_tiles[ip][1],
-                    this_junction,
+                    this_junction_id,
                     coming_from_directions[ip],
                     1,
                 ]
                 state_queue.append(new_state)
 
-    state_queue = []
-    # current_junction, previous_junctions, steps_taken
-    state_queue.append([(0, 1), [], 0])
-    route = None
-    max_steps = 0
-    been = {j: False for j in junctions_visited}
-    been[final_tile] = False
-    been[(0, 1)] = True
-
     been = {j: False for j in range(len(junction_to_id))}
-    been[0] = True
 
-    #max_steps = max_steps_rec((0, 1), been, 0, connections, final_tile)
-    max_steps = max_steps_rec_new(0, been, 0, connections, final_tile_id)
-
-    return max_steps
-
-def max_steps_rec_new(junction, been, steps_taken, connections, final_tile):
-    if junction == final_tile:
-        return steps_taken
-
-    max_steps = 0
-    for possible_junction, steps in connections[junction]:
-        if not been[possible_junction]:
-            been[possible_junction] = True
-            new_steps = max_steps_rec_new(
-                possible_junction, been, steps_taken + steps, connections,
-                final_tile
-            )
-            been[possible_junction] = False
-            if new_steps > max_steps:
-                max_steps = new_steps
-
-    return max_steps
+    return max_steps_rec(0, been, 0, connections, final_tile_id)
 
 def max_steps_rec(junction, been, steps_taken, connections, final_tile):
     if junction == final_tile:
         return steps_taken
 
     max_steps = 0
-    for possible_junction, steps in connections[junction].items():
+    for possible_junction, steps in connections[junction]:
         if not been[possible_junction]:
             been[possible_junction] = True
             new_steps = max_steps_rec(

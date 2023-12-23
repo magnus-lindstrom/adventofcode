@@ -28,8 +28,15 @@ def test_b():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--test', dest='test', action='store_true')
+    parser.add_argument('-p', '--profile', dest='profile', action='store_true')
     args = parser.parse_args()
     inp = get_input(test=args.test)
 
-    print('a:', a(inp))
-    print('b:', b(inp))
+    if args.profile:
+        print('\n### Profiling part 1 ###\n')
+        __import__('cProfile').run('a(inp)')
+        print('### Profiling part 2 ###\n')
+        __import__('cProfile').run('b(inp)')
+    else:
+        print('a:', a(inp))
+        print('b:', b(inp))
