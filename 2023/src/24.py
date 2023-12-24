@@ -17,9 +17,9 @@ def get_input(test=False):
 
 def a(inp):
     if len(inp) < 10:
-        xmin, xmax, ymin, ymax = 7, 27, 7, 27
+        minn, maxx = 7, 27
     else:
-        xmin, xmax, ymin, ymax = 200000000000000, 400000000000000, 200000000000000, 400000000000000
+        minn, maxx = 200000000000000, 400000000000000
     hail_positions = []
     hail_velocities = []
     for line in inp:
@@ -34,22 +34,20 @@ def a(inp):
         for j, ((x2, y2, _), (vx2, vy2, _)) in enumerate(zip(hail_positions, hail_velocities)):
             if j <= i:
                 continue
-            # if intersect, this must hold
+
             k1 = vy1 / vx1
             k2 = vy2 / vx2
             if k1 == k2:  # will not intersect
                 continue
 
-            #t1 = (y2 - y1 + (vy1 * (x1 - x2) / vx1)) / ((vy1 * vx2 / vx1) - vy2)
             t2 = (x2 - x1 + (vx1 * (y1 - y2) / vy1)) / ((vx1 * vy2 / vy1) - vx2)
             t1 = (x2 + (vx2 * t2) - x1) / vx1
             if t1 < 0 or t2 < 0:
-                pass  # happened in the past one one or both
+                pass  # happened in the past for one one or both
             else:
-                # future
                 x = x1 + t1 * vx1
                 y = y1 + t1 * vy1
-                if xmin <= x <= xmax and ymin <= y <= ymax:
+                if minn <= x <= maxx and minn <= y <= maxx:
                     inside += 1
 
     return inside
