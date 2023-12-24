@@ -2,8 +2,9 @@ import argparse
 import pathlib
 from sys import maxsize
 
-from sympy import solve
+from sympy import Eq
 from sympy.abc import c, d, e, f, g, h, k, l, m
+from sympy.solvers import solve
 
 
 def get_input(test=False):
@@ -54,7 +55,7 @@ def a(inp):
 
     return inside
 
-def b(inp):
+def b_first(inp):
     pos = []
     vel = []
     for line in inp:
@@ -250,7 +251,7 @@ def b_faster(inp):
                 # one more step back in time, so that the first ball is hit at t=1
                 return x1 + y1 + z1
 
-def b_boring(inp):
+def b(inp):
     pos = []
     vel = []
     for line in inp:
@@ -260,91 +261,56 @@ def b_boring(inp):
         pos.append([x, y, z])
         vel.append([vx, vy, vz])
 
-    # which 2 hails start closest to one another?
-    min_dist = maxsize
-    min_pair = (0, 0)
-    for i, (x1, y1, z1) in enumerate(pos):
-        for j, (x2, y2, z2) in enumerate(pos):
-            if j <= i:
-                continue
-            dist = abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
-            if dist < min_dist:
-                min_dist = dist
-                min_pair = (i, j)
-                print('new min:', min_dist, min_pair)
+    x1, x2, x3 = pos[0][0], pos[1][0], pos[2][0]
+    y1, y2, y3 = pos[0][1], pos[1][1], pos[2][1]
+    z1, z2, z3 = pos[0][2], pos[1][2], pos[2][2]
+    vx1, vx2, vx3 = vel[0][0], vel[1][0], vel[2][0]
+    vy1, vy2, vy3 = vel[0][1], vel[1][1], vel[2][1]
+    vz1, vz2, vz3 = vel[0][2], vel[1][2], vel[2][2]
 
-    x1 = pos[0][0]
-    x2 = pos[1][0]
-    x3 = pos[2][0]
-    y1 = pos[0][1]
-    y2 = pos[1][1]
-    y3 = pos[2][1]
-    z1 = pos[0][2]
-    z2 = pos[1][2]
-    z3 = pos[2][2]
-    vx1 = vel[0][0]
-    vx2 = vel[1][0]
-    vx3 = vel[2][0]
-    vy1 = vel[0][1]
-    vy2 = vel[1][1]
-    vy3 = vel[2][1]
-    vz1 = vel[0][2]
-    vz2 = vel[1][2]
-    vz3 = vel[2][2]
+    # t1 is when the rock hits the first particle, t2 the second, t3 the third
+    # xk, yk, zk are the initial positions of the rock
+    # vxk, vyk, vzk is the speed of the rock
+    # This creates a system of 9 equations with 9 unknown. Solve algebraically
+    # using a solver..
 
-    # t1 = c, t2 = d, t3 = m, xk = e, yk = f, zk = g, vxk = h, vyk = k, vzk = l
-    out = solve([
-        x1 + c*vx1 - e - c*h,
-        x2 + d*vx2 - e - d*h,
-        x3 + m*vx2 - e - m*h,
-        y1 + c*vy1 - f - c*k,
-        y2 + d*vy2 - f - d*k,
-        y3 + m*vy2 - f - m*k,
-        z1 + c*vz1 - g - c*l,
-        z2 + d*vz2 - g - d*l,
-        z3 + m*vz2 - g - m*l], c, d, m, e, f, g, h, k, l, dict=True)
-    print(out)
+    # t1 = c
+    # t2 = d
+    # t3 = m
+    # xk = e
+    # yk = f
+    # zk = g
+    # vxk = h
+    # vyk = k
+    # vzk = l
+    eq1 = Eq(x1 + c * vx1, e + c * h)
+    eq2 = Eq(y1 + c * vy1, f + c * k)
+    eq3 = Eq(z1 + c * vz1, g + c * l)
 
-    # Eq 1
-    # x1 + t1 * vx1 = xk + t1 * vxk
-    # Eq 2
-    # x2 + t2 * vx2 = xk + t2 * vxk
-    # Eq 3
-    # x3 + t3 * vx3 = xk + t3 * vxk
-    # Eq 4
-    # y1 + t1 * vy1 = yk + t1 * vyk
-    # Eq 5
-    # y2 + t2 * vy2 = yk + t2 * vyk
-    # Eq 6
-    # y3 + t3 * vy3 = yk + t3 * vyk
-    # Eq 7
-    # z1 + t1 * vz1 = zk + t1 * vzk
-    # Eq 8
-    # z2 + t2 * vz2 = zk + t2 * vzk
-    # Eq 9
-    # z3 + t3 * vz3 = zk + t3 * vzk
+    eq4 = Eq(x2 + d * vx2, e + d * h)
+    eq5 = Eq(y2 + d * vy2, f + d * k)
+    eq6 = Eq(z2 + d * vz2, g + d * l)
 
-    # get t1 from Eq4
-    # y1 + t1 * vy1 = yk + t1 * vyk
-    # t1 * (vy1 - vyk) = yk - y1
-    # t1 = ((yk - y1) / (vy1 - vyk))
+    eq7 = Eq(x3 + m * vx3, e + m * h)
+    eq8 = Eq(y3 + m * vy3, f + m * k)
+    eq9 = Eq(z3 + m * vz3, g + m * l)
 
-    # new Eq1
-    # x1 + ((yk - y1) / (vy1 - vyk)) * vx1 = xk + ((yk - y1) / (vy1 - vyk)) * vxk
+    sol = solve(
+        [eq1, eq2, eq3, eq4, eq5, eq6, eq7, eq8, eq9],
+        c, e, f, g, h, k, l, d, m,
+        dict=True
+    )
+    xk = sol[0][e]
+    yk = sol[0][f]
+    zk = sol[0][g]
 
-    # get yk from Eq 5
-    # yk = (y2 + t2 * vy2 - t2 * vyk)
-
-    # new Eq1
-    # x1 + (((y2 + t2 * vy2 - t2 * vyk) - y1) / (vy1 - vyk)) * vx1 = xk + (((y2 + t2 * vy2 - t2 * vyk) - y1) / (vy1 - vyk)) * vxk
-
-    return 0
+    return xk + yk + zk
 
 def test_a():
-    assert a(get_input()) == 0
+    assert a(get_input()) == 15107
 
 def test_b():
-    assert b(get_input()) == 0
+    assert b(get_input()) == 856642398547748
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -360,4 +326,4 @@ if __name__ == '__main__':
         __import__('cProfile').run('b(inp)')
     else:
         print('a:', a(inp))
-        print('b:', b_boring(inp))
+        print('b:', b(inp))
