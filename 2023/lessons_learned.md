@@ -70,3 +70,8 @@ plan was never going to work.
 
 Finding the longest path in an undirected, cyclic tree requires checking _all_ possible paths and
 finding the shortest one.
+
+# Day 25
+
+Karger's algorithm is a simple way of finding the smallest cut through a graph, but it is
+probabilistic in nature and does not guarantee a minimum cut.
