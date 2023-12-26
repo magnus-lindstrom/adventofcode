@@ -1,6 +1,6 @@
 import argparse
-from operator import itemgetter
 import pathlib
+from operator import itemgetter
 
 
 def get_input(test=False):
@@ -49,10 +49,10 @@ def b(inp):
     return password
 
 def test_a():
-    assert a(get_input()) == 0
+    assert a(get_input()) == 'qoclwvah'
 
 def test_b():
-    assert b(get_input()) == 0
+    assert b(get_input()) == 'ryrgviuv'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

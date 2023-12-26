@@ -21,6 +21,24 @@ def has_abba(string):
             return True
     return False
 
+def get_abas(string):
+    abas = []
+    for i_char in range(len(string) - 2):
+        c1 = string[i_char]
+        c2 = string[i_char+1]
+        c3 = string[i_char+2]
+        if c1 == c3 and c1 != c2:
+            abas.append(c1+c2+c3)
+    return abas
+
+def has_bab(string, aba):
+    bab = aba[1] + aba[0] + aba[1]
+    for i_char in range(len(string) - 2):
+        s = string[i_char:i_char + 3]
+        if s == bab:
+            return True
+    return False
+
 def a(inp):
 
     supporters = 0
@@ -47,28 +65,9 @@ def a(inp):
 
     return supporters
 
-def get_abas(string):
-    abas = []
-    for i_char in range(len(string) - 2):
-        c1 = string[i_char]
-        c2 = string[i_char+1]
-        c3 = string[i_char+2]
-        if c1 == c3 and c1 != c2:
-            abas.append(c1+c2+c3)
-    return abas
-
-def has_bab(string, aba):
-    bab = aba[1] + aba[0] + aba[1]
-    for i_char in range(len(string) - 2):
-        s = string[i_char:i_char + 3]
-        if s == bab:
-            return True
-    return False
-
 def b(inp):
     supporters = 0
     for line in inp:
-        line = 'aaa[jaj]baja'
         supports_ssl = False
         open_brackets = [i for i in range(len(line)) if line[i]  == '[']
         close_brackets = [i for i in range(len(line)) if line[i]  == ']']
@@ -80,28 +79,22 @@ def b(inp):
         for aba in get_abas(line[close_brackets[-1]+1:]):
             abas.append(aba)
         abas = set(abas)
-        print(line)
-        #print(abas)
-        #print()
 
         for aba in abas:
-            supports_tls = False
             for i in range(len(open_brackets)):
                 if has_bab(line[open_brackets[i]+1:close_brackets[i]], aba):
                     supports_ssl = True
 
         if supports_ssl:
-            print('true')
             supporters += 1
-        return
 
     return supporters
 
 def test_a():
-    assert a(get_input()) == 0
+    assert a(get_input()) == 110
 
 def test_b():
-    assert b(get_input()) == 0
+    assert b(get_input()) == 242
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
