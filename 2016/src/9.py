@@ -45,37 +45,35 @@ def get_factor_from_multipliers(multipliers):
 def b(inp):
     # assume that no marker is split up through by partly repeated
     multipliers = []
-    for line in inp:
-        new_line = 0
+    line = inp[0]
+    new_line_length = 0
 
-        i_char = 0
-        while i_char < len(line):
-            if line[i_char] == '(':
-                closing_bracket = line.find(')', i_char+1)
-                nr_letters, reps = line[i_char+1:closing_bracket].split('x')
+    i_char = 0
+    while i_char < len(line):
+        if line[i_char] == '(':
+            closing_bracket = line.find(')', i_char+1)
+            nr_letters, reps = line[i_char+1:closing_bracket].split('x')
 
-                steps_forward = closing_bracket + 1 - i_char
-                i_char += steps_forward
-                mult_factor = get_factor_from_multipliers(multipliers)
-                decrease_multipliers(multipliers, steps_forward)
+            steps_forward = closing_bracket + 1 - i_char
+            i_char += steps_forward
+            mult_factor = get_factor_from_multipliers(multipliers)
+            decrease_multipliers(multipliers, steps_forward)
 
-                # start being valid after the marker
-                multipliers.append([mult_factor * int(reps), int(nr_letters)])
+            # start being valid after the marker
+            multipliers.append([int(reps), int(nr_letters)])
 
-            else:
-                mult_factor = get_factor_from_multipliers(multipliers)
-                new_line += mult_factor
-                i_char += 1
-                decrease_multipliers(multipliers, 1)
-        print(line)
-        print(new_line)
-        #return new_line
+        else:
+            mult_factor = get_factor_from_multipliers(multipliers)
+            new_line_length += mult_factor
+            i_char += 1
+            decrease_multipliers(multipliers, 1)
+    return new_line_length
 
 def test_a():
-    assert a(get_input()) == 0
+    assert a(get_input()) == 98135
 
 def test_b():
-    assert b(get_input()) == 0
+    assert b(get_input()) == 10964557606
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
