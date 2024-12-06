@@ -102,12 +102,23 @@ def b(inp):
     if start_row is None or start_col is None:
         sys.exit(1)
 
+    guard = Guard(start_row, start_col, rowmax=len(inp), colmax=len(inp[0]))
+
+    while(guard.is_inside_area()):
+        guard.record_position()
+        guard.take_step_or_turn(obstacles)
+    original_visited = guard.visited
+
     summ = 0
     for i_row_obstruction in range(len(inp)):
         for j_col_obstruction in range(len(inp[0])):
             if i_row_obstruction in obstacles and j_col_obstruction in obstacles[i_row_obstruction]:
                 continue
             if i_row_obstruction == start_row and j_col_obstruction == start_col:
+                continue
+            if i_row_obstruction not in original_visited:
+                continue
+            if j_col_obstruction not in original_visited[i_row_obstruction]:
                 continue
             obstacle_clone = deepcopy(obstacles)
 
